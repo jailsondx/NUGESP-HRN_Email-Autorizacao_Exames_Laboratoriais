@@ -1,0 +1,39 @@
+function EnviaEmail() {
+  var linhaINICIAL = 7; //LINHA DE INICIO DAS INFORMAÇÕES
+  var colunaSTATUS = 13; //COLUNA DE STATUS "M"
+  var colunaENVIADO = 17; //COLUNA ONDE APARECERÁ O TEXTO "ENVIADO" "Q"
+  var textoCONDICAO = "AUTORIZADO"; //CONDIÇÃO PARA DISPARO DO E-MAIL NA COLUNA M
+  var textoENVIADO = "ENVIADO" //STATUS DA COLUNA P
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var nomeDAaba = ss.getName();
+  var nomeABA = nomeDAaba;
+  
+  
+  var sheet = SpreadsheetApp.getActiveSpreadsheet();
+  var INFOR = sheet.getDataRange();
+  
+  SpreadsheetApp.flush();
+  
+  var aba = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nomeABA);
+  var intervalo = aba.getRange(linhaINICIAL,1,aba.getLastRow()-linhaINICIAL+1,colunaENVIADO);
+  var dados = intervalo.getValues();
+  var enviou = false;
+  var email,assunto,mensagem;
+  for (var i=0; i<dados.length; ++i) {
+    //SpreadsheetApp.flush();
+    if((dados[i][colunaSTATUS-1]==textoCONDICAO) && (dados[i][colunaENVIADO-1]!=textoENVIADO)){
+      assunto = "EXAME AUTORIZADO"; //ASSUNTO DO EMAIL
+      mensagem = "EXAME AUTORIZADO\n \nSetor: " + nomeABA + "\nProntuario: " + dados[i][1] + "\nPaciente: " + dados[i][2] + "\nExame: " + dados[i][3];
+      email    = "laboratorioprotocolosepse@gmail.com,hrnterceirizado@gmail.com,carlos.cac@isgh.org.br"; //E-MAIL DAS PESSOAS QUE VÃO RECEBER AS INFORMAÇÕES. ATENÇÃO SEPARAR OS E-MAILs COM ","
+      //email = "nugesphrn@gmail.com";
+      MailApp.sendEmail(email, assunto, mensagem,{noReply:false});
+      //cache.removeAll(['email']);
+      aba.getRange(linhaINICIAL+i,colunaENVIADO).setValue(textoENVIADO);
+      enviou = true;
+      SpreadsheetApp.flush();
+    }
+  }
+  }
+  SpreadsheetApp.flush();
+  
